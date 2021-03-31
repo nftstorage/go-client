@@ -1,0 +1,722 @@
+openapi: 3.0.2
+info:
+  contact:
+    name: NFT Storage
+    url: https://nft.storage
+  description: |
+    # API Reference
+  termsOfService: terms
+  title: NFT Storage API
+  version: "1.0"
+  x-logo:
+    url: /images/logo-nft.storage.svg
+    altText: NFT Storage logo
+servers:
+- url: https://nft.storage/api
+security:
+- bearerAuth: []
+tags:
+- name: NFT Storage
+paths:
+  /upload:
+    post:
+      description: |
+        Store a file with nft.storage.
+
+        - Submit a HTTP `POST` request passing the file data in the request body.
+        - To store multiple files in a directory, submit a `multipart/form-data` HTTP `POST` request.
+
+        Use the `Content-Disposition` header for each part to specify a filename.
+      operationId: store
+      requestBody:
+        content:
+          image/png:
+            schema:
+              format: binary
+              type: string
+          application/octet-stream:
+            schema:
+              format: binary
+              type: string
+          multipart/form-data:
+            schema:
+              properties:
+                file:
+                  items:
+                    format: binary
+                    type: string
+                  type: array
+              type: object
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadResponse'
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'
+          description: Forbidden
+        "5XX":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal Server Error
+      summary: Store a file
+      tags:
+      - NFT Storage
+  /:
+    get:
+      operationId: list
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListResponse'
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'
+          description: Forbidden
+        "5XX":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal Server Error
+      summary: List all stored files
+      tags:
+      - NFT Storage
+  /{cid}:
+    delete:
+      description: "Stop storing the content with the passed CID on nft.storage.\n\
+        - Unpin the item from the underlying IPFS pinning service.\n- Cease renewals\
+        \ for expired Filecoin deals involving the CID.  \n\n⚠️ This does not remove\
+        \ the content from the network.\n\n- Does not terminate any established Filecoin\
+        \ deal.\n- Does not remove the content from other IPFS nodes in the network\
+        \ that already cached or pinned the CID.  \n\nNote: the content will remain\
+        \ available if another user has stored the CID with nft.storage.\n"
+      operationId: delete
+      parameters:
+      - description: CID for the NFT
+        explode: false
+        in: path
+        name: cid
+        required: true
+        schema:
+          $ref: '#/components/schemas/CID'
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteResponse'
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'
+          description: Forbidden
+        "5XX":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal Server Error
+      summary: Stop storing the content with the passed CID
+      tags:
+      - NFT Storage
+    get:
+      description: Includes the IPFS pinning state and the Filecoin deal state.
+      operationId: status
+      parameters:
+      - description: CID for the NFT
+        explode: false
+        in: path
+        name: cid
+        required: true
+        schema:
+          $ref: '#/components/schemas/CID'
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetResponse'
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'
+          description: Forbidden
+        "5XX":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal Server Error
+      summary: Get information for the stored file CID
+      tags:
+      - NFT Storage
+components:
+  responses:
+    unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UnauthorizedErrorResponse'
+      description: Unauthorized
+    forbidden:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ForbiddenErrorResponse'
+      description: Forbidden
+    internalServerError:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      description: Internal Server Error
+  schemas:
+    NFT:
+      example:
+        size: 0.8008281904610115
+        pin:
+          size: 132614
+          created: 2021-03-12T17:03:07.787Z
+          name: pin name
+          cid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+        created: 2021-03-12T17:03:07.787Z
+        scope: default
+        deals:
+          deals:
+          - statusText: miner rejected my data
+            lastChange: 2021-03-18T11:46:50.000Z
+            dealActivation: 2021-03-18T11:46:50.000Z
+            pieceCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+            dealExpiration: 2021-03-18T11:46:50.000Z
+            batchRootCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+            miner: f05678
+            network: nerpanet
+            status: queued
+          - statusText: miner rejected my data
+            lastChange: 2021-03-18T11:46:50.000Z
+            dealActivation: 2021-03-18T11:46:50.000Z
+            pieceCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+            dealExpiration: 2021-03-18T11:46:50.000Z
+            batchRootCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+            miner: f05678
+            network: nerpanet
+            status: queued
+          status: ongoing
+        files:
+        - '{}'
+        - '{}'
+        type: image/jpeg
+        cid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+      properties:
+        cid:
+          description: Self-describing content-addressed identifiers for distributed
+            systems. Check [spec](https://github.com/multiformats/cid) for more info.
+          example: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+          type: string
+        size:
+          default: 132614
+          description: Size in bytes of the NFT data.
+          type: number
+        created:
+          description: 'This is a timestamp in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601)
+            format: YYYY-MM-DDTHH:MM:SSZ.'
+          example: 2021-03-12T17:03:07.787Z
+          format: date-time
+          type: string
+        type:
+          description: MIME type of the upload file or 'directory' when uploading
+            multiple files.
+          enum:
+          - directory
+          - image/jpeg
+          - application/json
+          - other mime types
+          example: image/jpeg
+          type: string
+        scope:
+          default: default
+          description: Name of the JWT token used to create this NFT.
+          type: string
+        pin:
+          $ref: '#/components/schemas/Pin'
+        files:
+          description: Files in the directory (only if this NFT is a directory).
+          items:
+            properties:
+              name:
+                example: logo.jpg
+                type: string
+              type:
+                example: image/jpeg
+                type: string
+            type: object
+          type: array
+        deals:
+          $ref: '#/components/schemas/NFT_deals'
+      type: object
+    Links:
+      properties:
+        ipfs:
+          example: ipfs://bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+          type: string
+        http:
+          example: http://bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u.ipfs.dweb.link
+          type: string
+        file:
+          items:
+            $ref: '#/components/schemas/Links_file'
+          type: array
+      type: object
+    Files:
+      description: Files in the directory (only if this NFT is a directory).
+      items:
+        properties:
+          name:
+            example: logo.jpg
+            type: string
+          type:
+            example: image/jpeg
+            type: string
+        type: object
+      type: array
+    Deal:
+      example:
+        statusText: miner rejected my data
+        lastChange: 2021-03-18T11:46:50.000Z
+        dealActivation: 2021-03-18T11:46:50.000Z
+        pieceCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+        dealExpiration: 2021-03-18T11:46:50.000Z
+        batchRootCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+        miner: f05678
+        network: nerpanet
+        status: queued
+      properties:
+        batchRootCid:
+          example: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+          type: string
+        lastChange:
+          description: 'This is a timestamp in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601)
+            format: YYYY-MM-DDTHH:MM:SSZ.'
+          example: 2021-03-18T11:46:50.000Z
+          type: string
+        miner:
+          description: Miner ID
+          example: f05678
+          type: string
+        network:
+          description: Filecoin network for this Deal
+          enum:
+          - nerpanet
+          - mainnet
+          type: string
+        pieceCid:
+          description: Piece CID string
+          example: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+          type: string
+        status:
+          description: Deal Status
+          enum:
+          - queued
+          - proposing
+          - accepted
+          - failed
+          - active
+          - published
+          - terminated
+          type: string
+        statusText:
+          description: Deal Status Description
+          example: miner rejected my data
+          type: string
+        dealActivation:
+          description: 'This is a timestamp in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601)
+            format: YYYY-MM-DDTHH:MM:SSZ.'
+          example: 2021-03-18T11:46:50.000Z
+          type: string
+        dealExpiration:
+          description: 'This is a timestamp in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601)
+            format: YYYY-MM-DDTHH:MM:SSZ.'
+          example: 2021-03-18T11:46:50.000Z
+          type: string
+      required:
+      - lastChange
+      - status
+      type: object
+    Date:
+      description: 'This is a timestamp in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601)
+        format: YYYY-MM-DDTHH:MM:SSZ.'
+      example: 2021-03-12T17:03:07.787Z
+      format: date-time
+      type: string
+    CID:
+      description: Self-describing content-addressed identifiers for distributed systems.
+        Check [spec](https://github.com/multiformats/cid) for more info.
+      example: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+      type: string
+    PinStatus:
+      enum:
+      - queued
+      - pinning
+      - pinned
+      - failed
+      type: string
+    Pin:
+      example:
+        size: 132614
+        created: 2021-03-12T17:03:07.787Z
+        name: pin name
+        cid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+      properties:
+        cid:
+          description: Self-describing content-addressed identifiers for distributed
+            systems. Check [spec](https://github.com/multiformats/cid) for more info.
+          example: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+          type: string
+        name:
+          example: pin name
+          type: string
+        status:
+          $ref: '#/components/schemas/PinStatus'
+        created:
+          description: 'This is a timestamp in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601)
+            format: YYYY-MM-DDTHH:MM:SSZ.'
+          example: 2021-03-12T17:03:07.787Z
+          format: date-time
+          type: string
+        size:
+          example: 132614
+          type: number
+      type: object
+    UploadResponse:
+      example:
+        ok: true
+        value:
+          size: 0.8008281904610115
+          pin:
+            size: 132614
+            created: 2021-03-12T17:03:07.787Z
+            name: pin name
+            cid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+          created: 2021-03-12T17:03:07.787Z
+          scope: default
+          deals:
+            deals:
+            - statusText: miner rejected my data
+              lastChange: 2021-03-18T11:46:50.000Z
+              dealActivation: 2021-03-18T11:46:50.000Z
+              pieceCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+              dealExpiration: 2021-03-18T11:46:50.000Z
+              batchRootCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+              miner: f05678
+              network: nerpanet
+              status: queued
+            - statusText: miner rejected my data
+              lastChange: 2021-03-18T11:46:50.000Z
+              dealActivation: 2021-03-18T11:46:50.000Z
+              pieceCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+              dealExpiration: 2021-03-18T11:46:50.000Z
+              batchRootCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+              miner: f05678
+              network: nerpanet
+              status: queued
+            status: ongoing
+          files:
+          - '{}'
+          - '{}'
+          type: image/jpeg
+          cid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+      properties:
+        ok:
+          default: true
+          type: boolean
+        value:
+          $ref: '#/components/schemas/NFT'
+      type: object
+    ListResponse:
+      example:
+        ok: true
+        value:
+        - size: 0.8008281904610115
+          pin:
+            size: 132614
+            created: 2021-03-12T17:03:07.787Z
+            name: pin name
+            cid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+          created: 2021-03-12T17:03:07.787Z
+          scope: default
+          deals:
+            deals:
+            - statusText: miner rejected my data
+              lastChange: 2021-03-18T11:46:50.000Z
+              dealActivation: 2021-03-18T11:46:50.000Z
+              pieceCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+              dealExpiration: 2021-03-18T11:46:50.000Z
+              batchRootCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+              miner: f05678
+              network: nerpanet
+              status: queued
+            - statusText: miner rejected my data
+              lastChange: 2021-03-18T11:46:50.000Z
+              dealActivation: 2021-03-18T11:46:50.000Z
+              pieceCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+              dealExpiration: 2021-03-18T11:46:50.000Z
+              batchRootCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+              miner: f05678
+              network: nerpanet
+              status: queued
+            status: ongoing
+          files:
+          - '{}'
+          - '{}'
+          type: image/jpeg
+          cid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+        - size: 0.8008281904610115
+          pin:
+            size: 132614
+            created: 2021-03-12T17:03:07.787Z
+            name: pin name
+            cid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+          created: 2021-03-12T17:03:07.787Z
+          scope: default
+          deals:
+            deals:
+            - statusText: miner rejected my data
+              lastChange: 2021-03-18T11:46:50.000Z
+              dealActivation: 2021-03-18T11:46:50.000Z
+              pieceCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+              dealExpiration: 2021-03-18T11:46:50.000Z
+              batchRootCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+              miner: f05678
+              network: nerpanet
+              status: queued
+            - statusText: miner rejected my data
+              lastChange: 2021-03-18T11:46:50.000Z
+              dealActivation: 2021-03-18T11:46:50.000Z
+              pieceCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+              dealExpiration: 2021-03-18T11:46:50.000Z
+              batchRootCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+              miner: f05678
+              network: nerpanet
+              status: queued
+            status: ongoing
+          files:
+          - '{}'
+          - '{}'
+          type: image/jpeg
+          cid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+      properties:
+        ok:
+          default: true
+          type: boolean
+        value:
+          items:
+            $ref: '#/components/schemas/NFT'
+          type: array
+      type: object
+    GetResponse:
+      example:
+        ok: true
+        value:
+          size: 0.8008281904610115
+          pin:
+            size: 132614
+            created: 2021-03-12T17:03:07.787Z
+            name: pin name
+            cid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+          created: 2021-03-12T17:03:07.787Z
+          scope: default
+          deals:
+            deals:
+            - statusText: miner rejected my data
+              lastChange: 2021-03-18T11:46:50.000Z
+              dealActivation: 2021-03-18T11:46:50.000Z
+              pieceCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+              dealExpiration: 2021-03-18T11:46:50.000Z
+              batchRootCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+              miner: f05678
+              network: nerpanet
+              status: queued
+            - statusText: miner rejected my data
+              lastChange: 2021-03-18T11:46:50.000Z
+              dealActivation: 2021-03-18T11:46:50.000Z
+              pieceCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+              dealExpiration: 2021-03-18T11:46:50.000Z
+              batchRootCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+              miner: f05678
+              network: nerpanet
+              status: queued
+            status: ongoing
+          files:
+          - '{}'
+          - '{}'
+          type: image/jpeg
+          cid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+      properties:
+        ok:
+          default: true
+          type: boolean
+        value:
+          $ref: '#/components/schemas/NFT'
+      type: object
+    DeleteResponse:
+      example:
+        ok: true
+      properties:
+        ok:
+          type: boolean
+      type: object
+    ErrorResponse:
+      properties:
+        ok:
+          default: false
+          type: boolean
+        error:
+          $ref: '#/components/schemas/ErrorResponse_error'
+      type: object
+    UnauthorizedErrorResponse:
+      properties:
+        ok:
+          default: false
+          type: boolean
+        error:
+          $ref: '#/components/schemas/UnauthorizedErrorResponse_error'
+      type: object
+    ForbiddenErrorResponse:
+      properties:
+        ok:
+          default: false
+          type: boolean
+        error:
+          $ref: '#/components/schemas/ForbiddenErrorResponse_error'
+      type: object
+    NFT_deals:
+      example:
+        deals:
+        - statusText: miner rejected my data
+          lastChange: 2021-03-18T11:46:50.000Z
+          dealActivation: 2021-03-18T11:46:50.000Z
+          pieceCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+          dealExpiration: 2021-03-18T11:46:50.000Z
+          batchRootCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+          miner: f05678
+          network: nerpanet
+          status: queued
+        - statusText: miner rejected my data
+          lastChange: 2021-03-18T11:46:50.000Z
+          dealActivation: 2021-03-18T11:46:50.000Z
+          pieceCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+          dealExpiration: 2021-03-18T11:46:50.000Z
+          batchRootCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+          miner: f05678
+          network: nerpanet
+          status: queued
+        status: ongoing
+      properties:
+        status:
+          description: Overall deal status
+          enum:
+          - ongoing
+          - finalized
+          type: string
+        deals:
+          items:
+            $ref: '#/components/schemas/Deal'
+          type: array
+      type: object
+    Links_file:
+      properties:
+        ipfs:
+          example: ipfs://bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u/image.jpg
+          type: string
+        http:
+          example: http://bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u.ipfs.dweb.link/image.jpg
+          type: string
+      type: object
+    ErrorResponse_error:
+      properties:
+        name:
+          type: string
+        message:
+          type: string
+      type: object
+    UnauthorizedErrorResponse_error:
+      properties:
+        name:
+          default: HTTP Error
+          type: string
+        message:
+          default: Unauthorized
+          type: string
+      type: object
+    ForbiddenErrorResponse_error:
+      properties:
+        name:
+          default: HTTP Error
+          type: string
+        message:
+          enum:
+          - Token is not valid
+          - Session expired
+          type: string
+      type: object
+  securitySchemes:
+    bearerAuth:
+      bearerFormat: JWT
+      description: "The NFT Storage API uses *Bearer Tokens* to authenticate requests.\
+        \ You can view and manage your tokens in the [NFT Storage Dashboard](https://nft.storage).\
+        \   \n\nYour tokens carry many privileges, so be sure to keep them secure!\
+        \ Do not share your *secret tokens* in publicly accessible areas such as GitHub,\
+        \ client-side code, and so forth.   \n\n**Bearer authentication** (also called\
+        \ token authentication) is an HTTP authentication scheme that involves security\
+        \ tokens called bearer tokens. The name “Bearer authentication” can be understood\
+        \ as “give access to the bearer of this token.” The bearer token is a cryptic\
+        \ string, usually generated by the server in response to a login request.\
+        \ The client must send this token in the Authorization header when making\
+        \ requests to protected resources:\n\n```js\nAuthorization: Bearer <token>\n\
+        ```\n"
+      scheme: bearer
+      type: http
