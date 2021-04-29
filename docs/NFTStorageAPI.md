@@ -1,6 +1,6 @@
 # \NFTStorageAPI
 
-All URIs are relative to *https://nft.storage/api*
+All URIs are relative to *https://api.nft.storage*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
@@ -83,7 +83,7 @@ Name | Type | Description  | Notes
 
 ## List
 
-> ListResponse List(ctx).Execute()
+> ListResponse List(ctx).Before(before).Limit(limit).Execute()
 
 List all stored files
 
@@ -96,14 +96,17 @@ import (
     "context"
     "fmt"
     "os"
+    "time"
     openapiclient "./openapi"
 )
 
 func main() {
+    before := time.Now() // time.Time | Return results created before provided timestamp (optional)
+    limit := int32(56) // int32 | Max records to return (optional) (default to 10)
 
     configuration := openapiclient.NewConfiguration()
     api_client := openapiclient.NewAPIClient(configuration)
-    resp, r, err := api_client.NFTStorageAPI.List(context.Background()).Execute()
+    resp, r, err := api_client.NFTStorageAPI.List(context.Background()).Before(before).Limit(limit).Execute()
     if err != nil {
         fmt.Fprintf(os.Stderr, "Error when calling `NFTStorageAPI.List``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
@@ -115,12 +118,17 @@ func main() {
 
 ### Path Parameters
 
-This endpoint does not need any parameter.
+
 
 ### Other Parameters
 
 Other parameters are passed through a pointer to a apiListRequest struct via the builder pattern
 
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **before** | **time.Time** | Return results created before provided timestamp | 
+ **limit** | **int32** | Max records to return | [default to 10]
 
 ### Return type
 

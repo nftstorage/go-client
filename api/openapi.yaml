@@ -1,18 +1,9 @@
 openapi: 3.0.2
 info:
-  contact:
-    name: NFT Storage
-    url: https://nft.storage
-  description: |
-    # API Reference
-  termsOfService: terms
   title: NFT Storage API
   version: "1.0"
-  x-logo:
-    url: /images/logo-nft.storage.svg
-    altText: NFT Storage logo
 servers:
-- url: https://nft.storage/api
+- url: https://api.nft.storage
 security:
 - bearerAuth: []
 tags:
@@ -79,6 +70,29 @@ paths:
   /:
     get:
       operationId: list
+      parameters:
+      - description: Return results created before provided timestamp
+        example: 2020-07-27T17:32:28Z
+        explode: true
+        in: query
+        name: before
+        required: false
+        schema:
+          format: date-time
+          type: string
+        style: form
+      - description: Max records to return
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          format: int32
+          maximum: 100
+          minimum: 1
+          type: integer
+        style: form
       responses:
         "200":
           content:
@@ -195,6 +209,31 @@ paths:
       tags:
       - NFT Storage
 components:
+  parameters:
+    before:
+      description: Return results created before provided timestamp
+      example: 2020-07-27T17:32:28Z
+      explode: true
+      in: query
+      name: before
+      required: false
+      schema:
+        format: date-time
+        type: string
+      style: form
+    limit:
+      description: Max records to return
+      explode: true
+      in: query
+      name: limit
+      required: false
+      schema:
+        default: 10
+        format: int32
+        maximum: 100
+        minimum: 1
+        type: integer
+      style: form
   responses:
     unauthorized:
       content:
@@ -226,26 +265,26 @@ components:
         created: 2021-03-12T17:03:07.787Z
         scope: default
         deals:
-          deals:
-          - statusText: miner rejected my data
-            lastChange: 2021-03-18T11:46:50.000Z
-            dealActivation: 2021-03-18T11:46:50.000Z
-            pieceCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
-            dealExpiration: 2021-03-18T11:46:50.000Z
-            batchRootCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
-            miner: f05678
-            network: nerpanet
-            status: queued
-          - statusText: miner rejected my data
-            lastChange: 2021-03-18T11:46:50.000Z
-            dealActivation: 2021-03-18T11:46:50.000Z
-            pieceCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
-            dealExpiration: 2021-03-18T11:46:50.000Z
-            batchRootCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
-            miner: f05678
-            network: nerpanet
-            status: queued
-          status: ongoing
+        - statusText: miner rejected my data
+          lastChange: 2021-03-18T11:46:50.000Z
+          dealActivation: 2021-03-18T11:46:50.000Z
+          chainDealID: 138
+          pieceCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+          dealExpiration: 2021-03-18T11:46:50.000Z
+          batchRootCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+          miner: f05678
+          network: nerpanet
+          status: queued
+        - statusText: miner rejected my data
+          lastChange: 2021-03-18T11:46:50.000Z
+          dealActivation: 2021-03-18T11:46:50.000Z
+          chainDealID: 138
+          pieceCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+          dealExpiration: 2021-03-18T11:46:50.000Z
+          batchRootCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+          miner: f05678
+          network: nerpanet
+          status: queued
         files:
         - '{}'
         - '{}'
@@ -296,7 +335,9 @@ components:
             type: object
           type: array
         deals:
-          $ref: '#/components/schemas/NFT_deals'
+          items:
+            $ref: '#/components/schemas/Deal'
+          type: array
       type: object
     Links:
       properties:
@@ -328,6 +369,7 @@ components:
         statusText: miner rejected my data
         lastChange: 2021-03-18T11:46:50.000Z
         dealActivation: 2021-03-18T11:46:50.000Z
+        chainDealID: 138
         pieceCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
         dealExpiration: 2021-03-18T11:46:50.000Z
         batchRootCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
@@ -358,7 +400,7 @@ components:
           example: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
           type: string
         status:
-          description: Deal Status
+          description: Deal status
           enum:
           - queued
           - proposing
@@ -369,9 +411,13 @@ components:
           - terminated
           type: string
         statusText:
-          description: Deal Status Description
+          description: Deal status description.
           example: miner rejected my data
           type: string
+        chainDealID:
+          description: Identifier for the deal stored on chain.
+          example: 138
+          type: number
         dealActivation:
           description: 'This is a timestamp in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601)
             format: YYYY-MM-DDTHH:MM:SSZ.'
@@ -444,26 +490,26 @@ components:
           created: 2021-03-12T17:03:07.787Z
           scope: default
           deals:
-            deals:
-            - statusText: miner rejected my data
-              lastChange: 2021-03-18T11:46:50.000Z
-              dealActivation: 2021-03-18T11:46:50.000Z
-              pieceCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
-              dealExpiration: 2021-03-18T11:46:50.000Z
-              batchRootCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
-              miner: f05678
-              network: nerpanet
-              status: queued
-            - statusText: miner rejected my data
-              lastChange: 2021-03-18T11:46:50.000Z
-              dealActivation: 2021-03-18T11:46:50.000Z
-              pieceCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
-              dealExpiration: 2021-03-18T11:46:50.000Z
-              batchRootCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
-              miner: f05678
-              network: nerpanet
-              status: queued
-            status: ongoing
+          - statusText: miner rejected my data
+            lastChange: 2021-03-18T11:46:50.000Z
+            dealActivation: 2021-03-18T11:46:50.000Z
+            chainDealID: 138
+            pieceCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+            dealExpiration: 2021-03-18T11:46:50.000Z
+            batchRootCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+            miner: f05678
+            network: nerpanet
+            status: queued
+          - statusText: miner rejected my data
+            lastChange: 2021-03-18T11:46:50.000Z
+            dealActivation: 2021-03-18T11:46:50.000Z
+            chainDealID: 138
+            pieceCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+            dealExpiration: 2021-03-18T11:46:50.000Z
+            batchRootCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+            miner: f05678
+            network: nerpanet
+            status: queued
           files:
           - '{}'
           - '{}'
@@ -489,26 +535,26 @@ components:
           created: 2021-03-12T17:03:07.787Z
           scope: default
           deals:
-            deals:
-            - statusText: miner rejected my data
-              lastChange: 2021-03-18T11:46:50.000Z
-              dealActivation: 2021-03-18T11:46:50.000Z
-              pieceCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
-              dealExpiration: 2021-03-18T11:46:50.000Z
-              batchRootCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
-              miner: f05678
-              network: nerpanet
-              status: queued
-            - statusText: miner rejected my data
-              lastChange: 2021-03-18T11:46:50.000Z
-              dealActivation: 2021-03-18T11:46:50.000Z
-              pieceCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
-              dealExpiration: 2021-03-18T11:46:50.000Z
-              batchRootCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
-              miner: f05678
-              network: nerpanet
-              status: queued
-            status: ongoing
+          - statusText: miner rejected my data
+            lastChange: 2021-03-18T11:46:50.000Z
+            dealActivation: 2021-03-18T11:46:50.000Z
+            chainDealID: 138
+            pieceCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+            dealExpiration: 2021-03-18T11:46:50.000Z
+            batchRootCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+            miner: f05678
+            network: nerpanet
+            status: queued
+          - statusText: miner rejected my data
+            lastChange: 2021-03-18T11:46:50.000Z
+            dealActivation: 2021-03-18T11:46:50.000Z
+            chainDealID: 138
+            pieceCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+            dealExpiration: 2021-03-18T11:46:50.000Z
+            batchRootCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+            miner: f05678
+            network: nerpanet
+            status: queued
           files:
           - '{}'
           - '{}'
@@ -523,26 +569,26 @@ components:
           created: 2021-03-12T17:03:07.787Z
           scope: default
           deals:
-            deals:
-            - statusText: miner rejected my data
-              lastChange: 2021-03-18T11:46:50.000Z
-              dealActivation: 2021-03-18T11:46:50.000Z
-              pieceCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
-              dealExpiration: 2021-03-18T11:46:50.000Z
-              batchRootCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
-              miner: f05678
-              network: nerpanet
-              status: queued
-            - statusText: miner rejected my data
-              lastChange: 2021-03-18T11:46:50.000Z
-              dealActivation: 2021-03-18T11:46:50.000Z
-              pieceCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
-              dealExpiration: 2021-03-18T11:46:50.000Z
-              batchRootCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
-              miner: f05678
-              network: nerpanet
-              status: queued
-            status: ongoing
+          - statusText: miner rejected my data
+            lastChange: 2021-03-18T11:46:50.000Z
+            dealActivation: 2021-03-18T11:46:50.000Z
+            chainDealID: 138
+            pieceCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+            dealExpiration: 2021-03-18T11:46:50.000Z
+            batchRootCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+            miner: f05678
+            network: nerpanet
+            status: queued
+          - statusText: miner rejected my data
+            lastChange: 2021-03-18T11:46:50.000Z
+            dealActivation: 2021-03-18T11:46:50.000Z
+            chainDealID: 138
+            pieceCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+            dealExpiration: 2021-03-18T11:46:50.000Z
+            batchRootCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+            miner: f05678
+            network: nerpanet
+            status: queued
           files:
           - '{}'
           - '{}'
@@ -570,26 +616,26 @@ components:
           created: 2021-03-12T17:03:07.787Z
           scope: default
           deals:
-            deals:
-            - statusText: miner rejected my data
-              lastChange: 2021-03-18T11:46:50.000Z
-              dealActivation: 2021-03-18T11:46:50.000Z
-              pieceCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
-              dealExpiration: 2021-03-18T11:46:50.000Z
-              batchRootCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
-              miner: f05678
-              network: nerpanet
-              status: queued
-            - statusText: miner rejected my data
-              lastChange: 2021-03-18T11:46:50.000Z
-              dealActivation: 2021-03-18T11:46:50.000Z
-              pieceCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
-              dealExpiration: 2021-03-18T11:46:50.000Z
-              batchRootCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
-              miner: f05678
-              network: nerpanet
-              status: queued
-            status: ongoing
+          - statusText: miner rejected my data
+            lastChange: 2021-03-18T11:46:50.000Z
+            dealActivation: 2021-03-18T11:46:50.000Z
+            chainDealID: 138
+            pieceCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+            dealExpiration: 2021-03-18T11:46:50.000Z
+            batchRootCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+            miner: f05678
+            network: nerpanet
+            status: queued
+          - statusText: miner rejected my data
+            lastChange: 2021-03-18T11:46:50.000Z
+            dealActivation: 2021-03-18T11:46:50.000Z
+            chainDealID: 138
+            pieceCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+            dealExpiration: 2021-03-18T11:46:50.000Z
+            batchRootCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
+            miner: f05678
+            network: nerpanet
+            status: queued
           files:
           - '{}'
           - '{}'
@@ -632,40 +678,6 @@ components:
           type: boolean
         error:
           $ref: '#/components/schemas/ForbiddenErrorResponse_error'
-      type: object
-    NFT_deals:
-      example:
-        deals:
-        - statusText: miner rejected my data
-          lastChange: 2021-03-18T11:46:50.000Z
-          dealActivation: 2021-03-18T11:46:50.000Z
-          pieceCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
-          dealExpiration: 2021-03-18T11:46:50.000Z
-          batchRootCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
-          miner: f05678
-          network: nerpanet
-          status: queued
-        - statusText: miner rejected my data
-          lastChange: 2021-03-18T11:46:50.000Z
-          dealActivation: 2021-03-18T11:46:50.000Z
-          pieceCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
-          dealExpiration: 2021-03-18T11:46:50.000Z
-          batchRootCid: bafkreidivzimqfqtoqxkrpge6bjyhlvxqs3rhe73owtmdulaxr5do5in7u
-          miner: f05678
-          network: nerpanet
-          status: queued
-        status: ongoing
-      properties:
-        status:
-          description: Overall deal status
-          enum:
-          - ongoing
-          - finalized
-          type: string
-        deals:
-          items:
-            $ref: '#/components/schemas/Deal'
-          type: array
       type: object
     Links_file:
       properties:

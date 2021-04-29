@@ -11,7 +11,7 @@ Name | Type | Description | Notes
 **Scope** | Pointer to **string** | Name of the JWT token used to create this NFT. | [optional] [default to "default"]
 **Pin** | Pointer to [**Pin**](Pin.md) |  | [optional] 
 **Files** | Pointer to **[]map[string]interface{}** | Files in the directory (only if this NFT is a directory). | [optional] 
-**Deals** | Pointer to [**NFTDeals**](NFTDeals.md) |  | [optional] 
+**Deals** | Pointer to [**[]Deal**](Deal.md) |  | [optional] 
 
 ## Methods
 
@@ -209,20 +209,20 @@ HasFiles returns a boolean if a field has been set.
 
 ### GetDeals
 
-`func (o *NFT) GetDeals() NFTDeals`
+`func (o *NFT) GetDeals() []Deal`
 
 GetDeals returns the Deals field if non-nil, zero value otherwise.
 
 ### GetDealsOk
 
-`func (o *NFT) GetDealsOk() (*NFTDeals, bool)`
+`func (o *NFT) GetDealsOk() (*[]Deal, bool)`
 
 GetDealsOk returns a tuple with the Deals field if it's non-nil, zero value otherwise
 and a boolean to check if the value has been set.
 
 ### SetDeals
 
-`func (o *NFT) SetDeals(v NFTDeals)`
+`func (o *NFT) SetDeals(v []Deal)`
 
 SetDeals sets Deals field to given value.
 

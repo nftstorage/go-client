@@ -9,8 +9,9 @@ Name | Type | Description | Notes
 **Miner** | Pointer to **string** | Miner ID | [optional] 
 **Network** | Pointer to **string** | Filecoin network for this Deal | [optional] 
 **PieceCid** | Pointer to **string** | Piece CID string | [optional] 
-**Status** | **string** | Deal Status | 
-**StatusText** | Pointer to **string** | Deal Status Description | [optional] 
+**Status** | **string** | Deal status | 
+**StatusText** | Pointer to **string** | Deal status description. | [optional] 
+**ChainDealID** | Pointer to **float32** | Identifier for the deal stored on chain. | [optional] 
 **DealActivation** | Pointer to **string** | This is a timestamp in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format: YYYY-MM-DDTHH:MM:SSZ. | [optional] 
 **DealExpiration** | Pointer to **string** | This is a timestamp in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format: YYYY-MM-DDTHH:MM:SSZ. | [optional] 
 
@@ -197,6 +198,31 @@ SetStatusText sets StatusText field to given value.
 `func (o *Deal) HasStatusText() bool`
 
 HasStatusText returns a boolean if a field has been set.
+
+### GetChainDealID
+
+`func (o *Deal) GetChainDealID() float32`
+
+GetChainDealID returns the ChainDealID field if non-nil, zero value otherwise.
+
+### GetChainDealIDOk
+
+`func (o *Deal) GetChainDealIDOk() (*float32, bool)`
+
+GetChainDealIDOk returns a tuple with the ChainDealID field if it's non-nil, zero value otherwise
+and a boolean to check if the value has been set.
+
+### SetChainDealID
+
+`func (o *Deal) SetChainDealID(v float32)`
+
+SetChainDealID sets ChainDealID field to given value.
+
+### HasChainDealID
+
+`func (o *Deal) HasChainDealID() bool`
+
+HasChainDealID returns a boolean if a field has been set.
 
 ### GetDealActivation
 

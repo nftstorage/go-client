@@ -17,7 +17,6 @@ docs/Links.md
 docs/LinksFile.md
 docs/ListResponse.md
 docs/NFT.md
-docs/NFTDeals.md
 docs/NFTStorageAPI.md
 docs/Pin.md
 docs/PinStatus.md
@@ -38,7 +37,6 @@ model_links.go
 model_links_file.go
 model_list_response.go
 model_nft.go
-model_nft_deals.go
 model_pin.go
 model_pin_status.go
 model_unauthorized_error_response.go
