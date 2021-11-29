@@ -16,9 +16,9 @@ import (
 	_ioutil "io/ioutil"
 	_nethttp "net/http"
 	_neturl "net/url"
+	"os"
 	"strings"
 	"time"
-	"os"
 )
 
 // Linger please
@@ -30,11 +30,10 @@ var (
 type NFTStorageAPIService service
 
 type ApiDeleteRequest struct {
-	ctx _context.Context
+	ctx        _context.Context
 	ApiService *NFTStorageAPIService
-	cid string
+	cid        string
 }
-
 
 func (r ApiDeleteRequest) Execute() (DeleteResponse, *_nethttp.Response, error) {
 	return r.ApiService.DeleteExecute(r)
@@ -44,24 +43,24 @@ func (r ApiDeleteRequest) Execute() (DeleteResponse, *_nethttp.Response, error) 
  * Delete Stop storing the content with the passed CID
  * Stop storing the content with the passed CID on nft.storage.
 - Unpin the item from the underlying IPFS pinning service.
-- Cease renewals for expired Filecoin deals involving the CID.  
+- Cease renewals for expired Filecoin deals involving the CID.
 
 ⚠️ This does not remove the content from the network.
 
 - Does not terminate any established Filecoin deal.
-- Does not remove the content from other IPFS nodes in the network that already cached or pinned the CID.  
+- Does not remove the content from other IPFS nodes in the network that already cached or pinned the CID.
 
 Note: the content will remain available if another user has stored the CID with nft.storage.
 
  * @param ctx _context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param cid CID for the NFT
  * @return ApiDeleteRequest
- */
+*/
 func (a *NFTStorageAPIService) Delete(ctx _context.Context, cid string) ApiDeleteRequest {
 	return ApiDeleteRequest{
 		ApiService: a,
-		ctx: ctx,
-		cid: cid,
+		ctx:        ctx,
+		cid:        cid,
 	}
 }
 
@@ -150,7 +149,7 @@ func (a *NFTStorageAPIService) DeleteExecute(r ApiDeleteRequest) (DeleteResponse
 			newErr.model = v
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
-		if localVarHTTPResponse.StatusCode == 5XX {
+		if localVarHTTPResponse.StatusCode >= 500 {
 			var v ErrorResponse
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
@@ -175,10 +174,10 @@ func (a *NFTStorageAPIService) DeleteExecute(r ApiDeleteRequest) (DeleteResponse
 }
 
 type ApiListRequest struct {
-	ctx _context.Context
+	ctx        _context.Context
 	ApiService *NFTStorageAPIService
-	before *time.Time
-	limit *int32
+	before     *time.Time
+	limit      *int32
 }
 
 func (r ApiListRequest) Before(before time.Time) ApiListRequest {
@@ -202,7 +201,7 @@ func (r ApiListRequest) Execute() (ListResponse, *_nethttp.Response, error) {
 func (a *NFTStorageAPIService) List(ctx _context.Context) ApiListRequest {
 	return ApiListRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -296,7 +295,7 @@ func (a *NFTStorageAPIService) ListExecute(r ApiListRequest) (ListResponse, *_ne
 			newErr.model = v
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
-		if localVarHTTPResponse.StatusCode == 5XX {
+		if localVarHTTPResponse.StatusCode >= 500 {
 			var v ErrorResponse
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
@@ -321,11 +320,10 @@ func (a *NFTStorageAPIService) ListExecute(r ApiListRequest) (ListResponse, *_ne
 }
 
 type ApiStatusRequest struct {
-	ctx _context.Context
+	ctx        _context.Context
 	ApiService *NFTStorageAPIService
-	cid string
+	cid        string
 }
-
 
 func (r ApiStatusRequest) Execute() (GetResponse, *_nethttp.Response, error) {
 	return r.ApiService.StatusExecute(r)
@@ -341,8 +339,8 @@ func (r ApiStatusRequest) Execute() (GetResponse, *_nethttp.Response, error) {
 func (a *NFTStorageAPIService) Status(ctx _context.Context, cid string) ApiStatusRequest {
 	return ApiStatusRequest{
 		ApiService: a,
-		ctx: ctx,
-		cid: cid,
+		ctx:        ctx,
+		cid:        cid,
 	}
 }
 
@@ -431,7 +429,7 @@ func (a *NFTStorageAPIService) StatusExecute(r ApiStatusRequest) (GetResponse, *
 			newErr.model = v
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
-		if localVarHTTPResponse.StatusCode == 5XX {
+		if localVarHTTPResponse.StatusCode >= 500 {
 			var v ErrorResponse
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
@@ -456,9 +454,9 @@ func (a *NFTStorageAPIService) StatusExecute(r ApiStatusRequest) (GetResponse, *
 }
 
 type ApiStoreRequest struct {
-	ctx _context.Context
+	ctx        _context.Context
 	ApiService *NFTStorageAPIService
-	body **os.File
+	body       **os.File
 }
 
 func (r ApiStoreRequest) Body(body *os.File) ApiStoreRequest {
@@ -481,11 +479,11 @@ Use the `Content-Disposition` header for each part to specify a filename.
 
  * @param ctx _context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @return ApiStoreRequest
- */
+*/
 func (a *NFTStorageAPIService) Store(ctx _context.Context) ApiStoreRequest {
 	return ApiStoreRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
@@ -578,7 +576,7 @@ func (a *NFTStorageAPIService) StoreExecute(r ApiStoreRequest) (UploadResponse, 
 			newErr.model = v
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
-		if localVarHTTPResponse.StatusCode == 5XX {
+		if localVarHTTPResponse.StatusCode >= 500 {
 			var v ErrorResponse
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
